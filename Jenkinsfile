@@ -9,6 +9,8 @@ pipeline {
 
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
         KUBE_APISERVER = 'http://3.253.85.66'
+        // Path to the kubeconfig file for Jenkins
+        KUBECONFIG = '/home/ubuntu/jenkins-kubeconfig'
     }
     agent any
     stages {
