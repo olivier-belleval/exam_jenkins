@@ -10,7 +10,7 @@ pipeline {
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
         KUBE_APISERVER = 'http://3.253.85.66'
         // Path to the kubeconfig file for Jenkins
-        KUBECONFIG = '/home/ubuntu/jenkins-kubeconfig'
+        KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
     }
     agent any
     stages {
@@ -166,40 +166,42 @@ pipeline {
 
             steps {
                 script {
-                    sh '''
-                        # Set up Kubernetes configuration
-                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                        kubectl config use-context jenkins-context
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                            # Set up Kubernetes configuration
+                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                            kubectl config use-context jenkins-context
 
-                        # Add Helm repository if needed
-                        helm repo add stable https://charts.helm.sh/stable
+                            # Add Helm repository if needed
+                            helm repo add stable https://charts.helm.sh/stable
 
-                        # Update Helm repositories
-                        helm repo update
+                            # Update Helm repositories
+                            helm repo update
 
-                        # Deploy movie-service
-                        helm upgrade --install movie-service ./movie-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=movie-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+                            # Deploy movie-service
+                            helm upgrade --install movie-service ./movie-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=movie-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
 
-                        # Deploy cast-service
-                        helm upgrade --install cast-service ./cast-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=cast-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+                            # Deploy cast-service
+                            helm upgrade --install cast-service ./cast-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=cast-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
 
-                        # Deploy nginx
-                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+                            # Deploy nginx
+                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
 
-                        # Deploy databases
-                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
-                    '''
+                            # Deploy databases
+                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                        '''
+                    }
                 }
             }
         }
@@ -210,40 +212,42 @@ pipeline {
 
             steps {
                 script {
-                    sh '''
-                        # Set up Kubernetes configuration
-                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                        kubectl config use-context jenkins-context
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                            # Set up Kubernetes configuration
+                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                            kubectl config use-context jenkins-context
 
-                        # Add Helm repository if needed
-                        helm repo add stable https://charts.helm.sh/stable
+                            # Add Helm repository if needed
+                            helm repo add stable https://charts.helm.sh/stable
 
-                        # Update Helm repositories
-                        helm repo update
+                            # Update Helm repositories
+                            helm repo update
 
-                        # Deploy movie-service
-                        helm upgrade --install movie-service ./movie-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=movie-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+                            # Deploy movie-service
+                            helm upgrade --install movie-service ./movie-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=movie-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
 
-                        # Deploy cast-service
-                        helm upgrade --install cast-service ./cast-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=cast-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+                            # Deploy cast-service
+                            helm upgrade --install cast-service ./cast-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=cast-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
 
-                        # Deploy nginx
-                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+                            # Deploy nginx
+                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
 
-                        # Deploy databases
-                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
-                    '''
+                            # Deploy databases
+                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                        '''
+                    }
                 }
             }
         }
@@ -254,40 +258,42 @@ pipeline {
 
             steps {
                 script {
-                    sh '''
-                        # Set up Kubernetes configuration
-                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                        kubectl config use-context jenkins-context
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                            # Set up Kubernetes configuration
+                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                            kubectl config use-context jenkins-context
 
-                        # Add Helm repository if needed
-                        helm repo add stable https://charts.helm.sh/stable
+                            # Add Helm repository if needed
+                            helm repo add stable https://charts.helm.sh/stable
 
-                        # Update Helm repositories
-                        helm repo update
+                            # Update Helm repositories
+                            helm repo update
 
-                        # Deploy movie-service
-                        helm upgrade --install movie-service ./movie-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=movie-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+                            # Deploy movie-service
+                            helm upgrade --install movie-service ./movie-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=movie-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
 
-                        # Deploy cast-service
-                        helm upgrade --install cast-service ./cast-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=cast-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+                            # Deploy cast-service
+                            helm upgrade --install cast-service ./cast-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=cast-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
 
-                        # Deploy nginx
-                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+                            # Deploy nginx
+                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
 
-                        # Deploy databases
-                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
-                    '''
+                            # Deploy databases
+                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                        '''
+                    }
                 }
             }
         }
@@ -298,40 +304,42 @@ pipeline {
 
             steps {
                 script {
-                    sh '''
-                        # Set up Kubernetes configuration
-                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                        kubectl config use-context jenkins-context
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                            # Set up Kubernetes configuration
+                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                            kubectl config use-context jenkins-context
 
-                        # Add Helm repository if needed
-                        helm repo add stable https://charts.helm.sh/stable
+                            # Add Helm repository if needed
+                            helm repo add stable https://charts.helm.sh/stable
 
-                        # Update Helm repositories
-                        helm repo update
+                            # Update Helm repositories
+                            helm repo update
 
-                        # Deploy movie-service
-                        helm upgrade --install movie-service ./movie-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=movie-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+                            # Deploy movie-service
+                            helm upgrade --install movie-service ./movie-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=movie-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
 
-                        # Deploy cast-service
-                        helm upgrade --install cast-service ./cast-service-chart \
-                          --namespace $KUBE_NAMESPACE \
-                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                          --set image.tag=cast-$DOCKER_TAG \
-                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+                            # Deploy cast-service
+                            helm upgrade --install cast-service ./cast-service-chart \
+                              --namespace $KUBE_NAMESPACE \
+                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                              --set image.tag=cast-$DOCKER_TAG \
+                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
 
-                        # Deploy nginx
-                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+                            # Deploy nginx
+                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
 
-                        # Deploy databases
-                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
-                    '''
+                            # Deploy databases
+                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                        '''
+                    }
                 }
             }
         }
