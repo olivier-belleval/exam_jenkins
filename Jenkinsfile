@@ -13,7 +13,11 @@ pipeline {
                     sh '''
                         docker rm -f jenkins
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG ./movie-service
+                        docker build -t $DOCKER_ID/$DOCKER_IMAGE:movie-latest ./movie-service
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG ./cast-service
+                        docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-latest ./cast-service
+                        docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
+                        docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
                         sleep 6
                     '''
                 }
@@ -130,5 +134,22 @@ pipeline {
                 }
             }
         }
+        stage('Docker Push'){
+            environment
+            {
+                DOCKER_PASS = credentials("DOCKER_HUB_PASS")
+            }
+
+            steps {
+                script {
+                    sh '''
+                        docker login -u $DOCKER_ID -p $DOCKER_PASS
+                        docker push $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+                        docker push $DOCKER_ID/$DOCKER_IMAGE:latest
+                    '''
+                }
+            }
+        }
+
     }
 }
