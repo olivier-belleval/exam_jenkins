@@ -3,7 +3,7 @@ pipeline {
         DOCKER_ID = "kilann31" // replace this with your docker-id
         DOCKER_IMAGE = "exam_jenkins"
         DOCKER_TAG = "v.${BUILD_ID}.0"
-        NETWORK_TEST = "exam-test-network"
+        NETWORK_NAME = "exam-test-network"
     }
     agent any
     stages {
