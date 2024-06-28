@@ -31,16 +31,14 @@ pipeline {
         stage('Test Acceptance'){
             steps {
                 script {
-                sh '''
-                curl localhost:8001/api/v1/movies
-                '''
+                    sh '''
+                    curl localhost:8001/api/v1/movies
+                    '''
                 }
-            }
-            steps {
                 script {
-                sh '''
-                curl localhost:8002/api/v1/casts
-                '''
+                    sh '''
+                    curl localhost:8002/api/v1/casts
+                    '''
                 }
             }
         }
