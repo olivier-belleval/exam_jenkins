@@ -6,6 +6,9 @@ pipeline {
         NETWORK_NAME = "exam-test-network"
         POSTGRES_USER = credentials('postgres-user')
         POSTGRES_PASSWORD = credentials('postgres-password')
+
+        KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
+        KUBE_APISERVER = 'http://3.253.85.66'
     }
     agent any
     stages {
@@ -162,6 +165,18 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Set up Kubernetes configuration
+                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        # Add Helm repository if needed
+                        helm repo add stable https://charts.helm.sh/stable
+
+                        # Update Helm repositories
+                        helm repo update
+
                         # Deploy movie-service
                         helm upgrade --install movie-service ./movie-service-chart \
                           --namespace $KUBE_NAMESPACE \
@@ -194,6 +209,18 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Set up Kubernetes configuration
+                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        # Add Helm repository if needed
+                        helm repo add stable https://charts.helm.sh/stable
+
+                        # Update Helm repositories
+                        helm repo update
+
                         # Deploy movie-service
                         helm upgrade --install movie-service ./movie-service-chart \
                           --namespace $KUBE_NAMESPACE \
@@ -226,6 +253,18 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Set up Kubernetes configuration
+                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        # Add Helm repository if needed
+                        helm repo add stable https://charts.helm.sh/stable
+
+                        # Update Helm repositories
+                        helm repo update
+
                         # Deploy movie-service
                         helm upgrade --install movie-service ./movie-service-chart \
                           --namespace $KUBE_NAMESPACE \
@@ -258,6 +297,18 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Set up Kubernetes configuration
+                        kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
+                        kubectl config set-credentials jenkins --token=$KUBE_TOKEN
+                        kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
+                        kubectl config use-context jenkins-context
+
+                        # Add Helm repository if needed
+                        helm repo add stable https://charts.helm.sh/stable
+
+                        # Update Helm repositories
+                        helm repo update
+
                         # Deploy movie-service
                         helm upgrade --install movie-service ./movie-service-chart \
                           --namespace $KUBE_NAMESPACE \

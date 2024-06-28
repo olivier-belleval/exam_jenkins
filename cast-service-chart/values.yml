@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  repository: kilann31/exam_jenkins
+  tag: cast-latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+env:
+  - name: DATABASE_URI
+    value: {{ .Values.env.CAST_SERVICE_HOST_URL }}
+
+resources: {}

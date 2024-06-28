@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "cast-service-chart.fullname" . }}
+  labels:
+    {{- include "cast-service-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8000
+  selector:
+    app: {{ include "cast-service-chart.name" . }}
