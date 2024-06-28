@@ -62,7 +62,12 @@ pipeline {
                         fi
 
                         # Run the new container
-                        docker run -d --name movie-service -p 8001:8000 $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+                        docker run -d \
+                            --name movie-service \
+                            -p 8001:8000 \
+                            -e DATABASE_URI=postgresql://movie_db_username:movie_db_password@movie_db:5432/movie_db_dev \
+                            $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG \
+                            uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
                         sleep 10
                     '''
                 }
@@ -74,7 +79,12 @@ pipeline {
                         fi
 
                         # Run the new container
-                        docker run -d --name cast-service -p 8002:8000 $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+                        docker run -d\
+                            --name cast-service \
+                            -p 8002:8000 \
+                            -e DATABASE_URI=postgresql://cast_db_username:cast_db_password@cast_db:5432/cast_db_dev \
+                            $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG \
+                            uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
                         sleep 10
                     '''
                 }
