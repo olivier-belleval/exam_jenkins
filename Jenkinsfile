@@ -8,7 +8,7 @@ pipeline {
         POSTGRES_PASSWORD = credentials('postgres-password')
 
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
-        KUBE_APISERVER = 'http://3.253.85.66'
+        KUBE_APISERVER = 'https://3.253.85.66'
         // Path to the kubeconfig file for Jenkins
         KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
     }
