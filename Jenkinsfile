@@ -22,6 +22,12 @@ pipeline {
             steps {
                 script {
                     sh '''
+                        # Check if the container exists and remove it if it does
+                        if [ "$(docker ps -aq -f name=movie_db)" ]; then
+                            docker rm -f movie_db
+                        fi
+
+                        # Run the new container
                         docker run -d \
                           --name movie_db \
                           -e POSTGRES_USER=movie_db_username \
@@ -33,6 +39,12 @@ pipeline {
                 }
                 script {
                     sh '''
+                        # Check if the container exists and remove it if it does
+                        if [ "$(docker ps -aq -f name=cast_db)" ]; then
+                            docker rm -f cast_db
+                        fi
+
+                        # Run the new container
                         docker run -d \
                           --name cast_db \
                           -e POSTGRES_USER=cast_db_username \
@@ -44,13 +56,25 @@ pipeline {
                 }
                 script {
                     sh '''
-                        docker run -d -p 8001:8000 $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG
+                        # Check if the container exists and remove it if it does
+                        if [ "$(docker ps -aq -f name=movie-service)" ]; then
+                            docker rm -f movie-service
+                        fi
+
+                        # Run the new container
+                        docker run -d --name movie-service -p 8001:8000 $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
                         sleep 10
                     '''
                 }
                 script {
                     sh '''
-                        docker run -d -p 8002:8000 $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG
+                        # Check if the container exists and remove it if it does
+                        if [ "$(docker ps -aq -f name=cast-service)" ]; then
+                            docker rm -f cast-service
+                        fi
+
+                        # Run the new container
+                        docker run -d --name cast-service -p 8002:8000 $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
                         sleep 10
                     '''
                 }
