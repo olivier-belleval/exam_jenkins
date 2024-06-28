@@ -107,17 +107,25 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    curl -s localhost:8001/api/v1/movies
-                    '''
-                }
-                script {
-                    sh '''
                     curl localhost:8001/api/v1/movies
                     '''
                 }
                 script {
                     sh '''
                     curl localhost:8002/api/v1/casts
+                    '''
+                }
+                script {
+                    sh '''
+                        docker stop movie-service
+                        docker rm movie-service
+                        docker stop cast-service
+                        docker rm cast-service
+                        docker stop movie_db
+                        docker rm movie_db
+                        docker stop cast_db
+                        docker rm cast_db
+                        docker network rm $NETWORK_NAME
                     '''
                 }
             }
