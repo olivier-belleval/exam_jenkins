@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  repository: kilann31/exam_jenkins
+  tag: movie_service
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8001
+
+env:
+  DATABASE_URI: postgresql://{{ .Values.postgresUser }}:{{ .Values.postgresPassword }}@movie-db-service:5432/{{ .Values.postgresDb }}
+  CAST_SERVICE_HOST_URL: http://cast-service:8000/api/v1/casts/
+
+persistence:
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+postgresUser: movie_db_username
+postgresPassword: movie_db_password
+postgresDb: movie_db_dev
+secretName: movie-service-secret
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

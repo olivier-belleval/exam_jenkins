@@ -4,6 +4,8 @@ pipeline {
         DOCKER_IMAGE = "exam_jenkins"
         DOCKER_TAG = "v.${BUILD_ID}.0"
         NETWORK_NAME = "exam-test-network"
+        POSTGRES_USER = credentials('postgres-user')
+        POSTGRES_PASSWORD = credentials('postgres-password')
     }
     agent any
     stages {
@@ -148,6 +150,134 @@ pipeline {
                         docker push $DOCKER_ID/$DOCKER_IMAGE:movie-latest
                         docker push $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG
                         docker push $DOCKER_ID/$DOCKER_IMAGE:cast-latest
+                    '''
+                }
+            }
+        }
+        stage('Deploy dev'){
+            environment {
+                KUBE_NAMESPACE = "dev"
+            }
+
+            steps {
+                script {
+                    sh '''
+                        # Deploy movie-service
+                        helm upgrade --install movie-service ./movie-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=movie-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+
+                        # Deploy cast-service
+                        helm upgrade --install cast-service ./cast-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=cast-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+
+                        # Deploy nginx
+                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+
+                        # Deploy databases
+                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                    '''
+                }
+            }
+        }
+        stage('Deploy qa'){
+            environment {
+                KUBE_NAMESPACE = "qa"
+            }
+
+            steps {
+                script {
+                    sh '''
+                        # Deploy movie-service
+                        helm upgrade --install movie-service ./movie-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=movie-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+
+                        # Deploy cast-service
+                        helm upgrade --install cast-service ./cast-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=cast-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+
+                        # Deploy nginx
+                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+
+                        # Deploy databases
+                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                    '''
+                }
+            }
+        }
+        stage('Deploy staging'){
+            environment {
+                KUBE_NAMESPACE = "staging"
+            }
+
+            steps {
+                script {
+                    sh '''
+                        # Deploy movie-service
+                        helm upgrade --install movie-service ./movie-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=movie-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+
+                        # Deploy cast-service
+                        helm upgrade --install cast-service ./cast-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=cast-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+
+                        # Deploy nginx
+                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+
+                        # Deploy databases
+                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                    '''
+                }
+            }
+        }
+        stage('Deploy prod'){
+            environment {
+                KUBE_NAMESPACE = "prod"
+            }
+
+            steps {
+                script {
+                    sh '''
+                        # Deploy movie-service
+                        helm upgrade --install movie-service ./movie-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=movie-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
+                          --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
+
+                        # Deploy cast-service
+                        helm upgrade --install cast-service ./cast-service-chart \
+                          --namespace $KUBE_NAMESPACE \
+                          --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
+                          --set image.tag=cast-$DOCKER_TAG \
+                          --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
+
+                        # Deploy nginx
+                        helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
+
+                        # Deploy databases
+                        helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
                     '''
                 }
             }
