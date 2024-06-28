@@ -22,7 +22,35 @@ pipeline {
             steps {
                 script {
                     sh '''
-                        docker-compose up -d
+                        docker run -d \
+                          --name movie_db \
+                          -e POSTGRES_USER=movie_db_username \
+                          -e POSTGRES_PASSWORD=movie_db_password \
+                          -e POSTGRES_DB=movie_db_dev \
+                          postgres:12.1-alpine
+                        sleep 6
+                    '''
+                }
+                script {
+                    sh '''
+                        docker run -d \
+                          --name cast_db \
+                          -e POSTGRES_USER=cast_db_username \
+                          -e POSTGRES_PASSWORD=cast_db_password \
+                          -e POSTGRES_DB=cast_db_dev \
+                          postgres:12.1-alpine
+                        sleep 6
+                    '''
+                }
+                script {
+                    sh '''
+                        docker run -d -p 8001:8000 $DOCKER_ID/$DOCKER_IMAGE:movie-$DOCKER_TAG
+                        sleep 10
+                    '''
+                }
+                script {
+                    sh '''
+                        docker run -d -p 8002:8000 $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG
                         sleep 10
                     '''
                 }
