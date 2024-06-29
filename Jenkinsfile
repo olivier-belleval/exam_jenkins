@@ -9,8 +9,6 @@ pipeline {
 
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
         KUBE_APISERVER = 'https://3.253.85.66'
-        // Path to the kubeconfig file for Jenkins
-        KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
     }
     agent any
     stages {
@@ -167,45 +165,24 @@ pipeline {
         stage('Deploy dev'){
             environment {
                 KUBE_NAMESPACE = "dev"
-                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
+                KUBECONFIG = credentials("config")
             }
 
             steps {
                 script {
                     withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
                         sh '''
-                            # Set up Kubernetes configuration
-                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                            kubectl config use-context jenkins-context
-
-                            # Add Helm repository if needed
-                            helm repo add stable https://charts.helm.sh/stable
-
-                            # Update Helm repositories
-                            helm repo update
-
-                            # Deploy movie-service
-                            helm upgrade --install movie-service ./movie-service-chart \
-                              --namespace $KUBE_NAMESPACE \
-                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                              --set image.tag=movie-$DOCKER_TAG \
-                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
-
-                            # Deploy cast-service
-                            helm upgrade --install cast-service ./cast-service-chart \
-                              --namespace $KUBE_NAMESPACE \
-                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                              --set image.tag=cast-$DOCKER_TAG \
-                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
-
-                            # Deploy nginx
-                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
-
-                            # Deploy databases
-                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
+                           rm -Rf .kube
+                           mkdir .kube
+                           ls
+                           cat $KUBECONFIG > .kube/config
+                           cp fastapi/values.yaml values.yml
+                           sed -i "s/tag: .*/tag: ${DOCKER_TAG}/" values.yml
+                           cat values.yml
+                           helm upgrade --install app databases --values=./db-chart/values.yml --namespace dev
+                           helm upgrade --install app movie-service --values=./movie-service-chart/values.yml --namespace dev
+                           helm upgrade --install app movie-service --values=./cast-service-chart/values.yml --namespace dev
+                           helm upgrade --install app nginx --values=./nginx-chart/values.yml --namespace dev
                         '''
                     }
                 }
@@ -214,7 +191,7 @@ pipeline {
         stage('Deploy qa'){
             environment {
                 KUBE_NAMESPACE = "qa"
-                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
+                KUBECONFIG = credentials("config")
             }
 
             steps {
@@ -261,7 +238,7 @@ pipeline {
         stage('Deploy staging'){
             environment {
                 KUBE_NAMESPACE = "staging"
-                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
+                KUBECONFIG = credentials("config")
             }
 
             steps {
@@ -306,12 +283,18 @@ pipeline {
             }
         }
         stage('Deploy prod'){
+            when {
+                branch 'master'
+            }
             environment {
                 KUBE_NAMESPACE = "prod"
-                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
+                KUBECONFIG = credentials("config")
             }
 
             steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                }
                 script {
                     withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
                         sh '''
