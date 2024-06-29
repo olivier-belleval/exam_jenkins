@@ -176,6 +176,19 @@ pipeline {
                            mkdir .kube
                            ls
                            cat $KUBECONFIG > .kube/config
+                           cp movie-service-chart/values.yml values.yml
+                           cat values.yml
+                           helm upgrade --install app movie-service --values=values.yml --namespace dev
+                        '''
+                    }
+                }
+                script {
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                           rm -Rf .kube
+                           mkdir .kube
+                           ls
+                           cat $KUBECONFIG > .kube/config
                            cp fastapi/values.yaml values.yml
                            sed -i "s/tag: .*/tag: ${DOCKER_TAG}/" values.yml
                            cat values.yml
