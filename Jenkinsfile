@@ -23,9 +23,14 @@ pipeline {
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:movie-latest ./movie-service
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG ./cast-service
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-latest ./cast-service
-                        docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
-                        docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
-                        sleep 6
+
+                        if [ "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0" ]; then
+                            docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
+                        fi
+                        if [ "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0" ]; then
+                            docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
+                        fi
+                        sleep 2
                     '''
                 }
             }
