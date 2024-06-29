@@ -162,6 +162,7 @@ pipeline {
         stage('Deploy dev'){
             environment {
                 KUBE_NAMESPACE = "dev"
+                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
             }
 
             steps {
@@ -208,6 +209,7 @@ pipeline {
         stage('Deploy qa'){
             environment {
                 KUBE_NAMESPACE = "qa"
+                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
             }
 
             steps {
@@ -254,6 +256,7 @@ pipeline {
         stage('Deploy staging'){
             environment {
                 KUBE_NAMESPACE = "staging"
+                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
             }
 
             steps {
@@ -300,6 +303,7 @@ pipeline {
         stage('Deploy prod'){
             environment {
                 KUBE_NAMESPACE = "prod"
+                KUBECONFIG = '/var/lib/jenkins/k3s.yaml'
             }
 
             steps {
