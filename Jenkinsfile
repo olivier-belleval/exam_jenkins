@@ -203,7 +203,7 @@ pipeline {
                            mkdir .kube
                            ls
                            cat $KUBECONFIG > .kube/config
-                           cd movie-service-chart
+                           cd cast-service-chart
                            ls -la
                            sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
                            sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
