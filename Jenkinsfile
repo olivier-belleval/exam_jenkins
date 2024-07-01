@@ -182,8 +182,6 @@ pipeline {
                            mkdir .kube
                            ls
                            cat $KUBECONFIG > .kube/config
-                           mkdir movie-service-chart
-                           cp movie-service-chart/ movie-service-chart/
                            cd movie-service-chart
                            cat values.yml
                            helm upgrade --install app movie-service --values=values.yml --namespace dev
