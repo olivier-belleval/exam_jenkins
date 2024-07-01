@@ -24,13 +24,13 @@ pipeline {
 
                         movie_image_id=$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0")
                         # if movie_image_id is not empty, then remove the image
-                        if [ -n "$movie_image_id"]; then
+                        if [ -n "$movie_image_id" ]; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
                         fi
 
                         cast_image_id=$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0")
                         # if cast_image_id is not empty, then remove the image
-                        if [ -n "$cast_image_id"]; then
+                        if [ -n "$cast_image_id" ]; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
                         fi
 
