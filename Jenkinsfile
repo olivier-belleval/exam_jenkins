@@ -184,7 +184,7 @@ pipeline {
                            cat $KUBECONFIG > .kube/config
                            cd movie-service-chart
                            cat values.yml
-                           helm upgrade --install app movie-service --values=values.yml --namespace dev
+                           helm upgrade --install app . --values=values.yml --namespace dev
                         '''
                     }
                 }
