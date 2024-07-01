@@ -183,7 +183,7 @@ pipeline {
                            ls
                            cat $KUBECONFIG > .kube/config
                            cd movie-service-chart
-                           cat values.yml
+                           ls -la
                            helm upgrade --install app . --values=values.yml --namespace dev
                         '''
                     }
