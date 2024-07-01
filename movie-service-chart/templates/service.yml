@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "movie-service-chart.fullname" . }}
+  name: {{ include "movie-service-chart.name" . }}
   labels:
     {{- include "movie-service-chart.labels" . | nindent 4 }}
 spec:
