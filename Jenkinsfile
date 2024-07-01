@@ -172,8 +172,8 @@ pipeline {
             environment {
                 KUBE_NAMESPACE = "dev"
                 KUBECONFIG = credentials("config")
-                MOVIEPOSTGRESDB = movie_db_dev
-                CASTPOSTGRESDB = cast_db_dev
+                MOVIEPOSTGRESDB = "movie_db_dev"
+                CASTPOSTGRESDB = "cast_db_dev"
             }
 
             steps {
