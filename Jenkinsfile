@@ -196,8 +196,24 @@ pipeline {
                         '''
                     }
                 }
+                script {
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                           rm -Rf .kube
+                           mkdir .kube
+                           ls
+                           cat $KUBECONFIG > .kube/config
+                           cd movie-service-chart
+                           ls -la
+                           sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
+                           sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
+                           sed -i 's/{{ postgresDb }}/$CASTPOSTGRESDB/g' values.yml
+
+                           helm upgrade --install app . --values=values.yml --namespace $KUBE_NAMESPACE
+                        '''
+                    }
+                }
             }
-            // TODO add cast service
         }
         stage('-------  Deploy qa -------'){
             environment {

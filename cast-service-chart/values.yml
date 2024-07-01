@@ -9,6 +9,13 @@ service:
   type: ClusterIP
   port: 8000
 
+postgres:
+  image: postgres:12.1-alpine
+  user: {{ postgresUser }}
+  password: {{ postgresPassword }}
+  db: {{ postgresDb }}
+  servicePort: 5432
+
 env:
   - name: DATABASE_URI
     value: postgresql://{{ postgresUser }}:{{ postgresPassword }}@movie-db-service:5432/{{ moviePostgresDb }}
