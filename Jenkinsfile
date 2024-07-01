@@ -188,7 +188,7 @@ pipeline {
                            ls -la
                            sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
                            sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
-                           sed -i 's/{{ moviePostgresDb }}/$MOVIEPOSTGRESDB/g' values.yml
+                           sed -i 's/{{ postgresDb }}/$MOVIEPOSTGRESDB/g' values.yml
 
                            cat values.yml
 
