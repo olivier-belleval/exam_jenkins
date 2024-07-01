@@ -207,7 +207,7 @@ pipeline {
                         "KUBECONFIG=${env.KUBECONFIG}",
                         "POSTGRES_USER=$POSTGRES_USER",
                         "POSTGRES_PASSWORD=$POSTGRES_PASSWORD",
-                        "CASTPOSTGRESDB=$$CASTPOSTGRESDB"]
+                        "CASTPOSTGRESDB=$CASTPOSTGRESDB"]
                     ) {
                         sh '''
                            rm -Rf .kube
