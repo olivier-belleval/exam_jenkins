@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "movie-service-chart.fullname" . }}-postgres
+  labels:
+    app: {{ include "movie-service-chart.name" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "movie-service-chart.name" . }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ include "movie-service-chart.name" . }}-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ .Values.postgres.image }}"
+        env:
+          - name: POSTGRES_USER
+            value: "{{ .Values.postgres.user }}"
+          - name: POSTGRES_PASSWORD
+            value: "{{ .Values.postgres.password }}"
+          - name: POSTGRES_DB
+            value: "{{ .Values.postgres.db }}"
+        ports:
+          - containerPort: {{ .Values.postgres.servicePort }}
+        volumeMounts:
+          - name: postgres-data
+            mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-data
+          emptyDir: {}

@@ -172,6 +172,34 @@ pipeline {
             environment {
                 KUBE_NAMESPACE = "dev"
                 KUBECONFIG = credentials("config")
+                MOVIEPOSTGRESDB = movie_db_dev
+                CASTPOSTGRESDB = cast_db_dev
+            }
+
+            steps {
+                script {
+                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                        sh '''
+                           rm -Rf .kube
+                           mkdir .kube
+                           ls
+                           cat $KUBECONFIG > .kube/config
+                           cd movie-service-chart
+                           ls -la
+                           sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
+                           sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
+                           sed -i 's/{{ moviePostgresDb }}/$MOVIEPOSTGRESDB/g' values.yml
+                           helm upgrade --install app . --values=values.yml --namespace $KUBE_NAMESPACE
+                        '''
+                    }
+                }
+            }
+            // TODO add cast service
+        }
+        stage('Deploy qa'){
+            environment {
+                KUBE_NAMESPACE = "qa"
+                KUBECONFIG = credentials("config")
             }
 
             steps {
@@ -185,53 +213,6 @@ pipeline {
                            cd movie-service-chart
                            ls -la
                            helm upgrade --install app . --values=values.yml --namespace dev
-                        '''
-                    }
-                }
-            }
-        }
-        stage('Deploy qa'){
-            environment {
-                KUBE_NAMESPACE = "qa"
-                KUBECONFIG = credentials("config")
-            }
-
-            steps {
-                script {
-                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
-                        sh '''
-                            # Set up Kubernetes configuration
-                            kubectl config set-cluster k8s-cluster --server=$KUBE_APISERVER --insecure-skip-tls-verify=true
-                            kubectl config set-credentials jenkins --token=$KUBE_TOKEN
-                            kubectl config set-context jenkins-context --cluster=k8s-cluster --user=jenkins
-                            kubectl config use-context jenkins-context
-
-                            # Add Helm repository if needed
-                            helm repo add stable https://charts.helm.sh/stable
-
-                            # Update Helm repositories
-                            helm repo update
-
-                            # Deploy movie-service
-                            helm upgrade --install movie-service ./movie-service-chart \
-                              --namespace $KUBE_NAMESPACE \
-                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                              --set image.tag=movie-$DOCKER_TAG \
-                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@movie-db-service:5432/movie_db_dev \
-                              --set env.CAST_SERVICE_HOST_URL=http://cast-service:8000/api/v1/casts/
-
-                            # Deploy cast-service
-                            helm upgrade --install cast-service ./cast-service-chart \
-                              --namespace $KUBE_NAMESPACE \
-                              --set image.repository=$DOCKER_ID/$DOCKER_IMAGE \
-                              --set image.tag=cast-$DOCKER_TAG \
-                              --set env.DATABASE_URI=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@cast-db-service:5432/cast_db_dev
-
-                            # Deploy nginx
-                            helm upgrade --install nginx ./nginx-chart --namespace $KUBE_NAMESPACE
-
-                            # Deploy databases
-                            helm upgrade --install databases ./databases-chart --namespace $KUBE_NAMESPACE
                         '''
                     }
                 }

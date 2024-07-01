@@ -11,6 +11,6 @@ service:
 
 env:
   - name: DATABASE_URI
-    value: postgresql://{{ .Values.postgresUser }}:{{ .Values.postgresPassword }}@movie-db-service:5432/{{ .Values.postgresDb }}
+    value: postgresql://{{ postgresUser }}:{{ postgresPassword }}@movie-db-service:5432/{{ moviePostgresDb }}
 
 resources: {}
