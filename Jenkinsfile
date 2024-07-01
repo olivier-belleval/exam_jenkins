@@ -123,7 +123,7 @@ pipeline {
                 }
             }
         }
-        stage('Test Acceptance'){
+        stage('------- Test Acceptance -------'){
             steps {
                 script {
                     sh '''
@@ -150,7 +150,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker Push'){
+        stage('------- Docker Push -------'){
             environment
             {
                 DOCKER_PASS = credentials("DOCKER_HUB_PASS")
@@ -168,7 +168,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy dev'){
+        stage('-------  Deploy dev -------'){
             environment {
                 KUBE_NAMESPACE = "dev"
                 KUBECONFIG = credentials("config")
@@ -189,6 +189,9 @@ pipeline {
                            sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
                            sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
                            sed -i 's/{{ moviePostgresDb }}/$MOVIEPOSTGRESDB/g' values.yml
+
+                           cat values.yml
+
                            helm upgrade --install app . --values=values.yml --namespace $KUBE_NAMESPACE
                         '''
                     }
@@ -196,7 +199,7 @@ pipeline {
             }
             // TODO add cast service
         }
-        stage('Deploy qa'){
+        stage('-------  Deploy qa -------'){
             environment {
                 KUBE_NAMESPACE = "qa"
                 KUBECONFIG = credentials("config")
@@ -218,7 +221,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy staging'){
+        stage('------- Deploy staging -------'){
             environment {
                 KUBE_NAMESPACE = "staging"
                 KUBECONFIG = credentials("config")
@@ -265,7 +268,7 @@ pipeline {
                 }
             }
         }
-        stage('Deploy prod'){
+        stage('------- Deploy prod -------'){
             when {
                 branch 'master'
             }
