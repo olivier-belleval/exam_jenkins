@@ -22,10 +22,10 @@ pipeline {
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG ./cast-service
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-latest ./cast-service
 
-                        if docker images | grep -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0"; then
+                        if docker images -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0"> /dev/null; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
                         fi
-                        if docker images | grep -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0"; then
+                        if docker images -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0"> /dev/null; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
                         fi
                         sleep 2
