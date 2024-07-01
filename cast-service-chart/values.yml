@@ -11,13 +11,13 @@ service:
 
 postgres:
   image: postgres:12.1-alpine
-  user: {{ postgresUser }}
-  password: {{ postgresPassword }}
-  db: {{ postgresDb }}
+  user: ""
+  password: ""
+  db: ""
   servicePort: 5432
 
 env:
   - name: DATABASE_URI
-    value: postgresql://{{ postgresUser }}:{{ postgresPassword }}@movie-db-service:5432/{{ moviePostgresDb }}
+    value: postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@app-cast-service-chart-postgres:5432/{{ .Values.postgres.db }}
 
 resources: {}

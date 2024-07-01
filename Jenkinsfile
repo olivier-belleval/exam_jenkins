@@ -178,26 +178,37 @@ pipeline {
 
             steps {
                 script {
-                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                    withEnv([
+                        "KUBECONFIG=${env.KUBECONFIG}",
+                        "POSTGRES_USER=$POSTGRES_USER",
+                        "POSTGRES_PASSWORD=$POSTGRES_PASSWORD",
+                        "MOVIEPOSTGRESDB=$MOVIEPOSTGRESDB"
+                    ]) {
                         sh '''
                            rm -Rf .kube
                            mkdir .kube
                            ls
                            cat $KUBECONFIG > .kube/config
                            cd movie-service-chart
-                           ls -la
-                           sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
-                           sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
-                           sed -i 's/{{ postgresDb }}/$MOVIEPOSTGRESDB/g' values.yml
 
                            cat values.yml
 
-                           helm upgrade --install app . --values=values.yml --namespace $KUBE_NAMESPACE
+                           helm upgrade --install app . \
+                            --set postgres.user=$POSTGRES_USER \
+                            --set postgres.password=$POSTGRES_PASSWORD \
+                            --set postgres.db=$MOVIEPOSTGRESDB \
+                            --values=values.yml \
+                            --namespace $KUBE_NAMESPACE
                         '''
                     }
                 }
                 script {
-                    withEnv(["KUBECONFIG=${env.KUBECONFIG}"]) {
+                    withEnv([
+                        "KUBECONFIG=${env.KUBECONFIG}",
+                        "POSTGRES_USER=$POSTGRES_USER",
+                        "POSTGRES_PASSWORD=$POSTGRES_PASSWORD",
+                        "CASTPOSTGRESDB=$$CASTPOSTGRESDB"]
+                    ) {
                         sh '''
                            rm -Rf .kube
                            mkdir .kube
@@ -205,11 +216,13 @@ pipeline {
                            cat $KUBECONFIG > .kube/config
                            cd cast-service-chart
                            ls -la
-                           sed -i 's/{{ postgresUser }}/$POSTGRES_USER/g' values.yml
-                           sed -i 's/{{ postgresPassword }}/$POSTGRES_PASSWORD/g' values.yml
-                           sed -i 's/{{ postgresDb }}/$CASTPOSTGRESDB/g' values.yml
 
-                           helm upgrade --install app . --values=values.yml --namespace $KUBE_NAMESPACE
+                           helm upgrade --install app .\
+                            --set postgres.user=$POSTGRES_USER \
+                            --set postgres.password=$POSTGRES_PASSWORD \
+                            --set postgres.db=$CASTPOSTGRESDB \
+                            --values=values.yml\
+                            --namespace $KUBE_NAMESPACE
                         '''
                     }
                 }

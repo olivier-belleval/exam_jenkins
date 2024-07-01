@@ -11,14 +11,14 @@ service:
 
 postgres:
   image: postgres:12.1-alpine
-  user: {{ postgresUser }}
-  password: {{ postgresPassword }}
-  db: {{ postgresDb }}
+  user: ""
+  password: ""
+  db: ""
   servicePort: 5432
 
 env:
   - name: DATABASE_URI
-    value: postgresql://{{ postgresUser }}:{{ postgresPassword }}@app-movie-service-chart-postgres:5432/{{ postgresDb }}
+    value: postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@app-movie-service-chart-postgres:5432/{{ .Values.postgres.db }}
   - name: CAST_SERVICE_HOST_URL
     value: "http://cast-service:8000/api/v1/casts/"
 
