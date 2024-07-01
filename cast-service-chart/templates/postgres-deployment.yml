@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "movie-service-chart.fullname" . }}-postgres
+  name: {{ include "cast-service-chart.fullname" . }}-postgres
   labels:
-    app: {{ include "movie-service-chart.name" . }}
+    app: {{ include "cast-service-chart.name" . }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ include "movie-service-chart.name" . }}-postgres
+      app: {{ include "cast-service-chart.name" . }}-postgres
   template:
     metadata:
       labels:
-        app: {{ include "movie-service-chart.name" . }}-postgres
+        app: {{ include "cast-service-chart.name" . }}-postgres
     spec:
       containers:
       - name: postgres

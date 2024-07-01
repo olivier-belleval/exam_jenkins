@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "movie-service-chart.fullname" . }}-postgres
+  name: {{ include "cast-service-chart.fullname" . }}-postgres
   labels:
-    app: {{ include "movie-service-chart.name" . }}
+    app: {{ include "cast-service-chart.name" . }}
 spec:
   ports:
     - port: {{ .Values.postgres.servicePort }}
       targetPort: 5432
   selector:
-    app: {{ include "movie-service-chart.name" . }}-postgres
+    app: {{ include "cast-service-chart.name" . }}-postgres
