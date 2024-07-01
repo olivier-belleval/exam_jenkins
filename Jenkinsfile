@@ -22,12 +22,18 @@ pipeline {
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-$DOCKER_TAG ./cast-service
                         docker build -t $DOCKER_ID/$DOCKER_IMAGE:cast-latest ./cast-service
 
-                        if [ -z "$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0" 2> /dev/null)"]; then
+                        movie_image_id=docker images -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0"
+                        # if movie_image_id is not empty, then remove the image
+                        if [ -n "$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0" 2> /dev/null)"]; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:movie-v.$((BUILD_ID-1)).0
                         fi
-                        if [ -z "$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0" 2> /dev/null)"]; then
+
+                        cast_image_id=docker images -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0"
+                        # if cast_image_id is not empty, then remove the image
+                        if [ -n "$(docker images -q "$DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0" 2> /dev/null)"]; then
                             docker rmi $DOCKER_ID/$DOCKER_IMAGE:cast-v.$((BUILD_ID-1)).0
                         fi
+
                         sleep 2
                     '''
                 }
