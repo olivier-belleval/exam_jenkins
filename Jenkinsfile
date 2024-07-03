@@ -9,6 +9,8 @@ pipeline {
 
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
         KUBE_APISERVER = 'https://3.250.56.231'
+
+        NGINX_PORT = 8081
     }
     agent any
     stages {
@@ -40,9 +42,6 @@ pipeline {
             }
         }
         stage('Docker run'){ // run container from our builded image
-        environment {
-            NGINX_PORT = 8081
-        }
             steps {
                 script {
                     sh '''
@@ -53,17 +52,16 @@ pipeline {
         }
         stage('------- Test Acceptance -------'){
             steps {
-                timeout(time: 15, unit: "MINUTES") {
-                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
-                }
                 script {
                     sh '''
                     curl localhost:8001/api/v1/movies
+                    curl localhost:8081/api/v1/movies
                     '''
                 }
                 script {
                     sh '''
                     curl localhost:8002/api/v1/casts
+                    curl localhost:8081/api/v1/casts
                     '''
                 }
                 script {
