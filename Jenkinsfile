@@ -8,7 +8,7 @@ pipeline {
         POSTGRES_PASSWORD = credentials('postgres-password')
 
         KUBE_TOKEN = credentials('k8s-token') // Kubernetes token
-        KUBE_APISERVER = 'https://3.250.115.161'
+        KUBE_APISERVER = 'https://3.250.56.231'
     }
     agent any
     stages {
