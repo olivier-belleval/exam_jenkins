@@ -54,13 +54,25 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    echo "Test movie service directly"
                     curl localhost:8001/api/v1/movies
+                    '''
+                }
+                script {
+                    sh '''
+                    echo "Test movie from nginx"
                     curl localhost:8081/api/v1/movies
                     '''
                 }
                 script {
                     sh '''
+                    echo "Test cast service directly"
                     curl localhost:8002/api/v1/casts
+                    '''
+                }
+                script {
+                    sh '''
+                    echo "Test cast from nginx"
                     curl localhost:8081/api/v1/casts
                     '''
                 }
