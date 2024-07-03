@@ -40,19 +40,10 @@ pipeline {
             }
         }
         stage('Docker run'){ // run container from our builded image
+        environment {
+            NGINX_PORT = 8081
+        }
             steps {
-                script { // list folder and subfolders
-                    sh '''
-                        ls -la
-                    '''
-                }
-
-                script { // debug docker-compose not found
-                    sh '''
-                        docker-compose --version
-                    '''
-                }
-                
                 script {
                     sh '''
                         docker-compose up -d

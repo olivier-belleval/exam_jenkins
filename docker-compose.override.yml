@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  movie_service:
+    image: kilann31/exam_jenkins:movie-latest
+
+  cast_service:
+    image: kilann31/exam_jenkins:cast-latest
+
