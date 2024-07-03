@@ -46,6 +46,13 @@ pipeline {
                         ls -la
                     '''
                 }
+
+                script { // debug docker-compose not found
+                    sh '''
+                        docker-compose --version
+                    '''
+                }
+                
                 script {
                     sh '''
                         docker-compose up -d
