@@ -14,6 +14,14 @@ pipeline {
     }
     agent any
     stages {
+        stage('Print Branch Name') {
+            steps {
+                script {
+                    // Log the branch name to the console
+                    echo "Branch Name: ${env.BRANCH_NAME}"
+                }
+            }
+        }
         stage ('------- Docker build images -------') {
             steps {
                 script {
