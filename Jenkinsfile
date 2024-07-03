@@ -59,6 +59,8 @@ pipeline {
                 script {
                     sh '''
                         docker-compose up -d
+
+                        sleep 10
                     '''
                 }
             }
@@ -89,10 +91,12 @@ pipeline {
                     curl localhost:8081/api/v1/casts
                     '''
                 }
-                script {
-                    sh '''
-                        docker-compose down
-                    '''
+                always {
+                    script {
+                        sh '''
+                            docker-compose down
+                        '''
+                    }
                 }
             }
         }
