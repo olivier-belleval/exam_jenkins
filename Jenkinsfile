@@ -41,6 +41,11 @@ pipeline {
         }
         stage('Docker run'){ // run container from our builded image
             steps {
+                script { // list folder and subfolders
+                    sh '''
+                        ls -la
+                    '''
+                }
                 script {
                     sh '''
                         # Create a custom network
