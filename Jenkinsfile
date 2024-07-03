@@ -130,6 +130,9 @@ pipeline {
         }
         stage('------- Test Acceptance -------'){
             steps {
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to deploy in production ?', ok: 'Yes'
+                }
                 script {
                     sh '''
                     curl localhost:8001/api/v1/movies
